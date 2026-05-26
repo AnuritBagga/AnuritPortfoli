@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anurit Bagga | City Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Barlow',sans-serif;cursor:none}
+#gc{position:fixed;inset:0}
+canvas{display:block}
+#cur{position:fixed;width:10px;height:10px;background:#ffdc32;border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:difference}
+#curR{position:fixed;width:30px;height:30px;border:1.5px solid rgba(255,220,50,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .08s}
+/* WELCOME */
+#welcome{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#0a1628 0%,#000 100%);transition:opacity .8s}
+#welcome.hide{opacity:0;pointer-events:none}
+.wl-pre{color:rgba(255,220,50,.6);font-size:.72rem;letter-spacing:8px;text-transform:uppercase;font-weight:700;margin-bottom:16px;animation:fadeUp .6s .2s both}
+.wl-title{font-family:'Bebas Neue',cursive;font-size:clamp(3.5rem,8vw,6rem);color:#fff;letter-spacing:12px;line-height:1;animation:fadeUp .6s .35s both}
+.wl-sub{color:rgba(255,255,255,.35);font-size:.82rem;letter-spacing:5px;margin-top:8px;margin-bottom:44px;animation:fadeUp .6s .5s both}
+.wl-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;max-width:760px;width:90%;margin-bottom:40px;animation:fadeUp .6s .65s both}
+.wl-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px 10px;text-align:center}
+.wl-card-icon{font-size:1.5rem;margin-bottom:6px}
+.wl-card-dir{color:rgba(255,255,255,.4);font-size:.64rem;letter-spacing:2px;font-weight:700;margin-bottom:3px;text-transform:uppercase}
+.wl-card-name{font-weight:700;color:#fff;font-size:.78rem}
+.wl-controls{display:flex;gap:22px;margin-bottom:36px;animation:fadeUp .6s .8s both;flex-wrap:wrap;justify-content:center}
+.wl-ctrl{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.5);font-size:.78rem;font-weight:600}
+.wl-ctrl .k{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:3px 9px;color:#fff;font-size:.7rem;font-weight:700}
+.wl-btn{background:#ffdc32;color:#000;font-family:'Bebas Neue',cursive;font-size:1.3rem;letter-spacing:4px;padding:14px 50px;border:none;border-radius:8px;cursor:pointer;animation:fadeUp .6s .95s both;box-shadow:0 0 30px rgba(255,220,50,.3)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10}
+#vig{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.65) 100%)}
+#xhair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;opacity:0;transition:opacity .3s}
+#xhair::before,#xhair::after{content:'';position:absolute;background:rgba(255,255,255,.8)}
+#xhair::before{width:1.5px;height:18px;left:50%;top:0;transform:translateX(-50%)}
+#xhair::after{width:18px;height:1.5px;top:50%;left:0;transform:translateY(-50%)}
+#xhair.on{opacity:1}
+#tl{position:absolute;top:18px;left:18px;display:flex;align-items:center;gap:8px}
+.hbadge{background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);border-radius:8px;padding:8px 13px;display:flex;align-items:center;gap:7px;color:#fff}
+.hbadge .ic{font-size:1.2rem}.hbadge .tt{font-size:.8rem;font-weight:700;line-height:1.3}.hbadge .ts{font-size:.66rem;color:rgba(255,255,255,.45)}
+.hbadge.tbadge{font-family:'Bebas Neue',cursive;font-size:1.2rem;letter-spacing:3px;padding:8px 14px}
+#compass{position:absolute;top:18px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);border-radius:10px;padding:7px 20px;display:flex;align-items:center;gap:14px}
+.cdir{font-family:'Bebas Neue',cursive;font-size:.85rem;letter-spacing:2px;color:rgba(255,255,255,.25);transition:all .2s}
+.cdir.active{color:#ffdc32;text-shadow:0 0 10px rgba(255,220,50,.8)}
+#legend{position:absolute;top:18px;right:18px;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(14px);border-radius:10px;padding:12px 14px;min-width:165px}
+#legend h6{color:rgba(255,255,255,.3);font-size:.58rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px}
+.leg-item{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-label{color:rgba(255,255,255,.65);font-size:.74rem;font-weight:600}
+.leg-dist{color:rgba(255,255,255,.3);font-size:.65rem;margin-left:auto;font-weight:600}
+#zoneName{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:5px;opacity:0;transition:opacity .35s;text-shadow:0 2px 20px rgba(0,0,0,1);white-space:nowrap;pointer-events:none}
+#zoneSub{position:absolute;top:65px;left:50%;transform:translateX(-50%);font-size:.68rem;color:rgba(255,255,255,.55);letter-spacing:3px;text-transform:uppercase;opacity:0;transition:opacity .35s .08s;white-space:nowrap;font-weight:600;pointer-events:none}
+#iprompt{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;transition:opacity .25s}
+#iprompt.on{opacity:1}
+.prow{display:flex;align-items:center;gap:10px}
+.pkey{background:#ffdc32;color:#000;border-radius:6px;padding:5px 13px;font-weight:900;font-size:.85rem;letter-spacing:1px;box-shadow:0 3px 0 rgba(0,0,0,.5),0 0 15px rgba(255,220,50,.5)}
+.ptxt{color:#fff;font-weight:700;font-size:.92rem;letter-spacing:1.5px;text-shadow:0 2px 8px rgba(0,0,0,.9)}
+.pdesc{color:rgba(255,220,50,.75);font-size:.7rem;font-weight:600;letter-spacing:2px;text-transform:uppercase}
+#ctrl{position:absolute;bottom:18px;left:18px;color:rgba(255,255,255,.5);font-size:.68rem;line-height:2.2;font-weight:500}
+#ctrl .k{display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:1px 6px;color:#fff;font-weight:700;margin:0 2px;font-size:.65rem}
+#speedo{position:absolute;bottom:18px;right:218px;text-align:center}
+.spv{font-family:'Bebas Neue',cursive;font-size:2.5rem;color:#fff;line-height:1;text-shadow:0 0 20px rgba(255,220,50,.4)}
+.spu{color:rgba(255,255,255,.4);font-size:.6rem;font-weight:600;letter-spacing:2px}
+.spm{font-size:.68rem;font-weight:700;letter-spacing:2px;color:#ffdc32;margin-top:2px}
+#mm{position:absolute;bottom:18px;right:18px;width:190px;height:190px;border-radius:50%;border:2.5px solid rgba(255,255,255,.15);box-shadow:0 0 0 1px rgba(0,0,0,.7),inset 0 0 30px rgba(0,0,0,.5);overflow:hidden}
+#mmc{width:100%;height:100%;border-radius:50%}
+#mmlbl{position:absolute;bottom:216px;right:18px;text-align:right;color:rgba(255,255,255,.3);font-size:.57rem;font-weight:700;letter-spacing:2px}
+
+/* ═══════════════════════════════════════════════════════════════
+   IMPROVED INTERIOR / MODAL - Realistic & Attractive
+   ═══════════════════════════════════════════════════════════════ */
+#modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;pointer-events:all;cursor:default;animation:none;background:rgba(0,0,0,.85);backdrop-filter:blur(20px)}
+#modal.on{display:flex;animation:modalFadeIn .4s ease both}
+@keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
+
+/* Main interior container - realistic glass building feel */
+.interior{width:92%;max-width:1200px;height:90%;max-height:800px;display:flex;flex-direction:column;overflow:hidden;position:relative;border-radius:20px;border:1px solid rgba(255,255,255,.12);box-shadow:0 25px 80px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05),inset 0 1px 0 rgba(255,255,255,.1);animation:interiorSlideUp .5s .1s ease both}
+@keyframes interiorSlideUp{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* Realistic interior background with depth */
+.interior-bg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.interior-bg::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.03) 0%,transparent 40%,rgba(0,0,0,.4) 100%);z-index:1;pointer-events:none}
+.interior-floor{position:absolute;bottom:0;left:0;right:0;height:25%;background:linear-gradient(to top,rgba(0,0,0,.6),transparent),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0px,rgba(255,255,255,.04) 1px,transparent 1px,transparent 60px),repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0px,rgba(255,255,255,.02) 1px,transparent 1px,transparent 60px)}
+.interior-ceil{position:absolute;top:0;left:0;right:0;height:15%;background:linear-gradient(to bottom,rgba(0,0,0,.5),transparent)}
+.interior-left{position:absolute;top:0;left:0;bottom:0;width:10%;background:linear-gradient(to right,rgba(0,0,0,.4),transparent)}
+.interior-right{position:absolute;top:0;right:0;bottom:0;width:10%;background:linear-gradient(to left,rgba(0,0,0,.4),transparent)}
+.interior-vignette{position:absolute;inset:0;box-shadow:inset 0 0 150px rgba(0,0,0,.5);pointer-events:none;z-index:2}
+
+/* Ambient light effect */
+.ambient-light{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(255,220,50,.08) 0%,transparent 70%);pointer-events:none;z-index:1}
+
+/* Top bar - sleek and modern */
+.int-topbar{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:20px 32px 18px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;background:linear-gradient(180deg,rgba(255,255,255,.04) 0%,transparent 100%)}
+.int-topbar-left{display:flex;align-items:center;gap:16px}
+.int-badge{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.int-building-name{font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:4px;color:#fff;line-height:1;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.int-building-sub{font-size:.7rem;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;margin-top:4px;font-weight:600}
+.int-exit{display:flex;align-items:center;gap:10px;background:rgba(255,50,50,.12);border:1px solid rgba(255,50,50,.3);border-radius:10px;padding:10px 20px;color:#ff6060;font-size:.82rem;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .25s;text-transform:uppercase;backdrop-filter:blur(10px)}
+.int-exit:hover{background:rgba(255,50,50,.25);color:#ff4040;transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,50,50,.2)}
+.int-exit i{font-size:.9rem}
+
+/* Tab navigation - pill style */
+.int-nav{position:relative;z-index:10;display:flex;gap:6px;padding:16px 32px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;overflow-x:auto;background:rgba(0,0,0,.2)}
+.int-nav::-webkit-scrollbar{display:none}
+.int-tab{padding:10px 24px;font-size:.78rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.35);cursor:pointer;border-radius:8px 8px 0 0;transition:all .25s;white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px;background:rgba(255,255,255,.02)}
+.int-tab:hover{color:rgba(255,255,255,.7);background:rgba(255,255,255,.05)}
+.int-tab.active{color:#fff;border-bottom-color:var(--accent-color,#ffdc32);background:rgba(255,255,255,.06)}
+
+/* Content panels - improved readability */
+.int-content{position:relative;z-index:10;flex:1;overflow-y:auto;padding:32px 40px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+.int-content::-webkit-scrollbar{width:6px}
+.int-content::-webkit-scrollbar-track{background:transparent}
+.int-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+.int-content::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.25)}
+.int-panel{display:none;animation:panelIn .4s ease both}
+.int-panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Hero section - bigger, bolder, more visible */
+.int-hero{display:flex;align-items:flex-start;gap:32px;margin-bottom:36px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.08)}
+.int-avatar{width:100px;height:100px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:3rem;flex-shrink:0;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.int-hero-text h1{font-family:'Bebas Neue',cursive;font-size:3.2rem;color:#fff;letter-spacing:5px;line-height:1;margin-bottom:10px;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+.int-hero-text p{color:rgba(255,255,255,.75);font-size:1.05rem;line-height:1.8;max-width:600px;font-weight:400}
+.int-hero-text p strong{color:#ffdc32;font-weight:600}
+.int-hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.int-htag{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:6px 16px;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.7);letter-spacing:.5px;transition:all .2s}
+.int-htag:hover{background:rgba(255,255,255,.12);transform:translateY(-1px)}
+
+/* Stat row - glass cards */
+.int-stats{display:flex;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+.int-stat{flex:1;min-width:120px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;text-align:center;backdrop-filter:blur(10px);transition:all .25s}
+.int-stat:hover{transform:translateY(-3px);background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.int-stat-num{font-family:'Bebas Neue',cursive;font-size:2.8rem;line-height:1;letter-spacing:2px}
+.int-stat-lbl{font-size:.7rem;color:rgba(255,255,255,.4);letter-spacing:2.5px;text-transform:uppercase;margin-top:6px;font-weight:700}
+
+/* Section heading - more prominent */
+.int-section-title{font-size:.72rem;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.45);margin:32px 0 16px;display:flex;align-items:center;gap:12px}
+.int-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.15),transparent)}
+
+/* Skill chips - better visibility */
+.chip-group{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.chip{padding:10px 18px;border-radius:10px;font-size:.85rem;font-weight:700;letter-spacing:.5px;transition:all .2s;cursor:default;border:1.5px solid;backdrop-filter:blur(10px)}
+.chip:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+
+/* Project card - enhanced */
+.proj-card{border-radius:16px;padding:28px 32px;margin-bottom:18px;border:1.5px solid;position:relative;overflow:hidden;transition:all .3s;backdrop-filter:blur(10px);background:rgba(255,255,255,.03)}
+.proj-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.proj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent-color,#ffdc32),transparent)}
+.proj-card-title{font-family:'Bebas Neue',cursive;font-size:1.8rem;letter-spacing:3px;color:#fff;margin-bottom:6px}
+.proj-card-tech{font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;opacity:.9}
+.proj-card-desc{color:rgba(255,255,255,.75);font-size:.95rem;line-height:1.85;font-weight:400}
+
+/* Feature list - better visibility */
+.feature-list{display:flex;flex-direction:column;gap:10px}
+.feature-item{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:rgba(255,255,255,.04);border-radius:12px;border:1px solid rgba(255,255,255,.06);transition:all .2s}
+.feature-item:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);transform:translateX(4px)}
+.feature-bullet{color:var(--accent-color,#ffdc32);font-size:1.1rem;margin-top:2px;flex-shrink:0}
+.feature-text{color:rgba(255,255,255,.8);font-size:.9rem;line-height:1.7;font-weight:400}
+
+/* Education card - improved */
+.edu-row{display:flex;align-items:flex-start;gap:18px;padding:20px;border-radius:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);transition:all .25s;backdrop-filter:blur(10px)}
+.edu-row:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15);transform:translateX(4px)}
+.edu-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.edu-title{color:#fff;font-weight:800;font-size:1.05rem;margin-bottom:4px;letter-spacing:.3px}
+.edu-inst{font-size:.85rem;font-weight:700;letter-spacing:.5px}
+.edu-meta{color:rgba(255,255,255,.5);font-size:.8rem;margin-top:4px;font-weight:500}
+.edu-meta strong{color:#ffdc32;font-weight:700}
+
+/* Contact items - glass effect */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.contact-item{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:14px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);text-decoration:none;transition:all .3s;color:rgba(255,255,255,.8);font-weight:600;font-size:.92rem;backdrop-filter:blur(10px)}
+.contact-item:hover{background:rgba(255,220,50,.08);border-color:rgba(255,220,50,.35);color:#fff;transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.contact-item .ci-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.contact-item .ci-label{font-size:.72rem;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.contact-item .ci-val{font-size:.9rem;font-weight:700;color:#fff;letter-spacing:.3px}
+
+/* Progress bars - more visible */
+.progress-row{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.progress-label{min-width:120px;font-size:.85rem;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.5px}
+.progress-track{flex:1;height:10px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-color,#3498db),#2ecc71);border-radius:5px;transition:width 1s ease;box-shadow:0 0 10px rgba(52,152,219,.3)}
+.progress-value{font-size:.75rem;color:rgba(255,255,255,.4);width:40px;text-align:right;font-weight:700}
+
+/* Info cards for AI/Data section */
+.info-card{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-left:4px solid var(--accent-color,#3498db);border-radius:12px;padding:18px 20px;margin-bottom:12px;transition:all .25s;backdrop-filter:blur(10px)}
+.info-card:hover{background:rgba(255,255,255,.07);transform:translateX(6px);border-color:rgba(255,255,255,.15)}
+.info-card-title{color:#fff;font-weight:800;font-size:1rem;margin-bottom:6px;letter-spacing:.3px}
+.info-card-desc{color:rgba(255,255,255,.55);font-size:.85rem;line-height:1.7;font-weight:400}
+
+/* Competency tags - larger */
+.comp-tag{padding:10px 18px;border-radius:10px;font-size:.85rem;font-weight:700;letter-spacing:.5px;transition:all .2s;cursor:default;border:1.5px solid;backdrop-filter:blur(10px)}
+.comp-tag:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+</style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+<div id="cur"></div><div id="curR"></div>
+<div id="welcome">
+  <div class="wl-pre">Welcome to</div>
+  <div class="wl-title">ANURIT BAGGA</div>
+  <div class="wl-sub">Interactive City Portfolio &nbsp;&middot;&nbsp; Explore to Discover</div>
+  <div class="wl-cards">
+    <div class="wl-card"><div class="wl-card-icon">&#128308;</div><div class="wl-card-dir">North &uarr;</div><div class="wl-card-name">HQ / About</div></div>
+    <div class="wl-card"><div class="wl-card-icon">&#128309;</div><div class="wl-card-dir">West &larr;</div><div class="wl-card-name">Tech Skills</div></div>
+    <div class="wl-card"><div class="wl-card-icon">&#128992;</div><div class="wl-card-dir">East &rarr;</div><div class="wl-card-name">Projects</div></div>
+    <div class="wl-card"><div class="wl-card-icon">&#128994;</div><div class="wl-card-dir">South &darr;</div><div class="wl-card-name">Education</div></div>
+    <div class="wl-card"><div class="wl-card-icon">&#128995;</div><div class="wl-card-dir">South-West &swarr;</div><div class="wl-card-name">Contact</div></div>
+  </div>
+  <div class="wl-controls">
+    <div class="wl-ctrl"><span class="k">WASD</span> Walk</div>
+    <div class="wl-ctrl"><span class="k">Mouse</span> Look</div>
+    <div class="wl-ctrl"><span class="k">E</span> Enter building</div>
+    <div class="wl-ctrl"><span class="k">Shift</span> Sprint</div>
+    <div class="wl-ctrl"><span class="k">ESC</span> Unlock mouse</div>
+  </div>
+  <button class="wl-btn" id="startBtn">ENTER THE CITY</button>
+</div>
+<div id="gc"></div>
+<div id="hud">
+  <div id="vig"></div>
+  <div id="xhair"></div>
+  <div id="tl">
+    <div class="hbadge"><span class="ic" id="wicon">&#9728;&#65039;</span><div><div class="tt" id="wname">Clear</div><div class="ts" id="wwx">Sunny</div></div></div>
+    <div class="hbadge tbadge" id="tod">14:35</div>
+  </div>
+  <div id="compass">
+    <span class="cdir" id="cW">W</span><span class="cdir" id="cNW">NW</span><span class="cdir" id="cN">N</span>
+    <span class="cdir" id="cNE">NE</span><span class="cdir" id="cE">E</span>
+    <span class="cdir" id="cSE">SE</span><span class="cdir" id="cS">S</span><span class="cdir" id="cSW">SW</span>
+  </div>
+  <div id="legend">
+    <h6>Buildings</h6>
+    <div class="leg-item"><div class="leg-dot" style="background:#e74c3c"></div><span class="leg-label">HQ / About Me</span><span class="leg-dist" id="ld0">&mdash;</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#3498db"></div><span class="leg-label">Tech Arsenal</span><span class="leg-dist" id="ld1">&mdash;</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#e67e22"></div><span class="leg-label">Projects</span><span class="leg-dist" id="ld2">&mdash;</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#2ecc71"></div><span class="leg-label">Education</span><span class="leg-dist" id="ld3">&mdash;</span></div>
+    <div class="leg-item"><div class="leg-dot" style="background:#9b59b6"></div><span class="leg-label">Contact Hub</span><span class="leg-dist" id="ld4">&mdash;</span></div>
+  </div>
+  <div id="zoneName"></div>
+  <div id="zoneSub"></div>
+  <div id="iprompt">
+    <div class="prow"><span class="pkey">E</span><span class="ptxt" id="ptxt">ENTER BUILDING</span></div>
+    <div class="pdesc" id="pdesc">Press to explore</div>
+  </div>
+  <div id="ctrl">
+    <div><span class="k">W</span><span class="k">A</span><span class="k">S</span><span class="k">D</span> Move &nbsp;&middot;&nbsp; <span class="k">&#8679;</span> Sprint</div>
+    <div><span class="k">Mouse</span> Look &nbsp;&middot;&nbsp; <span class="k">E</span> Enter</div>
+    <div><span class="k">Click</span> Lock &nbsp;&middot;&nbsp; <span class="k">ESC</span> Unlock</div>
+  </div>
+  <div id="speedo"><div class="spv" id="spv">0</div><div class="spu">KM/H</div><div class="spm" id="spm">IDLE</div></div>
+  <div id="mmlbl">MAP</div>
+  <div id="mm"><canvas id="mmc" width="190" height="190"></canvas></div>
+</div>
+<div id="modal"><div id="mbody"></div></div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {PointerLockControls} from 'three/addons/controls/PointerLockControls.js';
+
+const SEASONS=['day','dusk','rainy','overcast'];
+const CS=SEASONS[Math.floor(Math.random()*SEASONS.length)];
+const SC={
+  day:     {sky:0x87CEEB,fog:0xaac8e0,fogD:.003, gnd:0x4a7a20,amb:.65,sun:1.4,sunC:0xfff5e0,rain:false,icon:'&#9728;&#65039;',nm:'Clear Day',   wx:'Sunny',     tod:'14:22',exp:1.1},
+  dusk:    {sky:0x080512,fog:0x080512,fogD:.0045,gnd:0x1a2808,amb:.18,sun:.5, sunC:0xff8844,rain:false,icon:'&#127750;',nm:'Night City',  wx:'Evening',   tod:'22:15',exp:1.9},
+  rainy:   {sky:0x3e4e5e,fog:0x3e4e5e,fogD:.016, gnd:0x303e18,amb:.3, sun:.35,sunC:0xaabbcc,rain:true, icon:'&#127783;&#65039;',nm:'Storm Front', wx:'Heavy Rain',tod:'16:40',exp:1.0},
+  overcast:{sky:0x7a8e9e,fog:0x7a8e9e,fogD:.007, gnd:0x3e5e1a,amb:.5, sun:.65,sunC:0xd8dde5,rain:false,icon:'&#127787;&#65039;',nm:'Overcast',   wx:'Foggy',     tod:'10:05',exp:1.05}
+};
+const cfg=SC[CS];
+document.getElementById('wicon').innerHTML=cfg.icon;
+document.getElementById('wname').textContent=cfg.nm;
+document.getElementById('wwx').textContent=cfg.wx;
+document.getElementById('tod').textContent=cfg.tod;
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(cfg.sky);
+scene.fog=new THREE.FogExp2(cfg.fog,cfg.fogD);
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.05,700);
+camera.position.set(0,1.75,5);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=cfg.exp;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.getElementById('gc').appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff,cfg.amb));
+const sun=new THREE.DirectionalLight(cfg.sunC,cfg.sun);
+sun.position.set(CS==='dusk'?-60:80,130,50);
+sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);
+sun.shadow.camera.left=-250;sun.shadow.camera.right=250;
+sun.shadow.camera.top=250;sun.shadow.camera.bottom=-250;
+sun.shadow.camera.far=600;sun.shadow.bias=-0.0008;sun.shadow.normalBias=0.02;
+scene.add(sun);
+scene.add(new THREE.HemisphereLight(cfg.sky,cfg.gnd,.3));
+if(CS==='dusk'){scene.add(new THREE.AmbientLight(0x100820,.7));const ml=new THREE.DirectionalLight(0x223355,.35);ml.position.set(-60,90,-40);scene.add(ml);}
+
+function noiseTex(w,h,r,g,b,v,rep=1){
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  const ctx=c.getContext('2d'),d=ctx.createImageData(w,h);
+  for(let i=0;i<d.data.length;i+=4){const n=(Math.random()-.5)*v;d.data[i]=Math.min(255,Math.max(0,r+n));d.data[i+1]=Math.min(255,Math.max(0,g+n));d.data[i+2]=Math.min(255,Math.max(0,b+n));d.data[i+3]=255;}
+  ctx.putImageData(d,0,0);
+  const t=new THREE.CanvasTexture(c);if(rep>1){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,rep);}return t;
+}
+function asphaltTex(){
+  const c=document.createElement('canvas');c.width=512;c.height=512;
+  const ctx=c.getContext('2d'),d=ctx.createImageData(512,512);
+  for(let i=0;i<d.data.length;i+=4){const v=48+Math.floor(Math.random()*28);d.data[i]=v;d.data[i+1]=v;d.data[i+2]=v;d.data[i+3]=255;}
+  ctx.putImageData(d,0,0);
+  ctx.fillStyle='rgba(255,255,255,.008)';
+  for(let i=0;i<250;i++){ctx.beginPath();ctx.arc(Math.random()*512,Math.random()*512,Math.random()*2+.4,0,Math.PI*2);ctx.fill();}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(6,6);return t;
+}
+function brickTex(r,g,b){
+  const c=document.createElement('canvas');c.width=256;c.height=256;
+  const ctx=c.getContext('2d'),bW=62,bH=28;
+  for(let row=0;row<Math.ceil(256/bH);row++){
+    for(let col=0;col<Math.ceil(256/bW)+1;col++){
+      const off=row%2===0?0:bW/2;
+      const nr=Math.min(255,Math.max(0,r+(Math.random()-.5)*28));
+      const ng=Math.min(255,Math.max(0,g+(Math.random()-.5)*16));
+      const nb=Math.min(255,Math.max(0,b+(Math.random()-.5)*16));
+      ctx.fillStyle='rgb('+nr+',' +ng+','+nb+')';
+      ctx.fillRect(col*bW-off+2,row*bH+2,bW-4,bH-4);
+    }
+  }
+  ctx.fillStyle='rgba(185,180,170,.65)';
+  for(let row=0;row<Math.ceil(256/bH);row++){
+    ctx.fillRect(0,row*bH,256,2);const off=row%2===0?0:bW/2;
+    for(let col=0;col<Math.ceil(256/bW)+2;col++)ctx.fillRect(col*bW-off,row*bH,2,bH);
+  }
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,3);return t;
+}
+function winTex(floors,cols){
+  const isDusk=CS==='dusk',cW=cols*44,cH=floors*54;
+  const c=document.createElement('canvas');c.width=cW;c.height=cH;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle=isDusk?'#080c14':'#10172a';ctx.fillRect(0,0,cW,cH);
+  for(let f=0;f<floors;f++){for(let cl=0;cl<cols;cl++){const on=Math.random()>(isDusk?.28:.62);ctx.fillStyle=on?'#ffe880':(isDusk?'#0c1520':'#0e1628');ctx.fillRect(cl*44+5,f*54+7,34,40);}}
+  return new THREE.CanvasTexture(c);
+}
+function sidewalkTex(){
+  const c=document.createElement('canvas');c.width=256;c.height=256;
+  const ctx=c.getContext('2d'),d=ctx.createImageData(256,256);
+  for(let i=0;i<d.data.length;i+=4){const v=165+(Math.random()-.5)*18;d.data[i]=v;d.data[i+1]=v;d.data[i+2]=v-4;d.data[i+3]=255;}
+  ctx.putImageData(d,0,0);ctx.strokeStyle='rgba(0,0,0,.1)';ctx.lineWidth=1.5;
+  for(let i=0;i<256;i+=32){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,256);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(256,i);ctx.stroke();}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4,4);return t;
+}
+
+const aTex=asphaltTex();const swTex=sidewalkTex();
+const wetRoad=CS==='rainy';
+const roadMat=new THREE.MeshStandardMaterial({map:aTex,roughness:wetRoad?.08:.95,metalness:wetRoad?.65:0,color:wetRoad?0x909090:0xe0e0e0});
+const swMat=new THREE.MeshStandardMaterial({map:swTex,roughness:.85,color:0xd0ccc6});
+const curbMat=new THREE.MeshStandardMaterial({color:0xb0acaa,roughness:.8});
+const markMat=new THREE.MeshStandardMaterial({color:0xf0e8d0,roughness:.9});
+const ylMat=new THREE.MeshStandardMaterial({color:0xf5c800,roughness:.85});
+const poleMat=new THREE.MeshStandardMaterial({color:0x383838,roughness:.5,metalness:.7});
+
+const gTex=noiseTex(512,512,55,82,28,18,20);
+const gnd=new THREE.Mesh(new THREE.PlaneGeometry(700,700),new THREE.MeshStandardMaterial({map:gTex,color:cfg.gnd,roughness:1}));
+gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;scene.add(gnd);
+
+function addBox(geo,mat,x,y,z,ry=0,cast=true,recv=true){
+  const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);if(ry)m.rotation.y=ry;
+  if(cast)m.castShadow=true;if(recv)m.receiveShadow=true;scene.add(m);return m;
+}
+function road(x,z,w,d){addBox(new THREE.BoxGeometry(w,.06,d),roadMat,x,.03,z,0,false,true);}
+function sw(x,z,w,d){addBox(new THREE.BoxGeometry(w,.18,d),swMat,x,.09,z,0,false,true);}
+function curb(x,z,w,d){addBox(new THREE.BoxGeometry(w,.1,d),curbMat,x,.05,z,0,false,true);}
+function mark(x,z,w,d,m){addBox(new THREE.BoxGeometry(w,.07,d),m||markMat,x,.075,z,0,false,false);}
+
+road(0,0,18,320);road(0,0,320,18);
+sw(-22,0,7,320);sw(22,0,7,320);sw(0,-22,320,7);sw(0,22,320,7);
+curb(-18.5,0,.6,320);curb(18.5,0,.6,320);curb(0,-18.5,320,.6);curb(0,18.5,320,.6);
+mark(0,0,.25,320,ylMat);mark(0,0,320,.25,ylMat);
+for(let i=-150;i<=150;i+=16){if(Math.abs(i)<22)continue;mark(i,5,6,.2);mark(i,-5,6,.2);mark(5,i,.2,6);mark(-5,i,.2,6);}
+function xwalk(x,z,w,d){const n=7,s2=d/n*.52;for(let i=0;i<n;i++){const o=-d/2+(i/(n-1))*d;w>d?mark(x,z+o,w,s2):mark(x+o,z,s2,d);}}
+xwalk(0,-20,18,5);xwalk(0,20,18,5);xwalk(-20,0,5,18);xwalk(20,0,5,18);
+function block(x,z,w,d){addBox(new THREE.BoxGeometry(w,.15,d),swMat,x,.075,z,0,false,true);}
+block(55,55,85,85);block(-55,55,85,85);block(55,-55,85,85);block(-55,-55,85,85);
+block(130,0,60,320);block(-130,0,60,320);block(0,130,320,60);block(0,-130,320,60);
+
+function lamp(x,z,flip=1){
+  const h=7.8;addBox(new THREE.CylinderGeometry(.07,.09,h,10),poleMat,x,h/2,z);
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.033,.033,3,8),poleMat);arm.rotation.z=Math.PI/2;arm.position.set(x+flip*1.2,h,z);scene.add(arm);
+  addBox(new THREE.BoxGeometry(1.1,.22,.38),new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:.4,metalness:.7}),x+flip*2.1,h-.14,z);
+  addBox(new THREE.BoxGeometry(.75,.06,.22),new THREE.MeshBasicMaterial({color:CS==='dusk'?0xffeebb:0xfffaee}),x+flip*2.1,h-.26,z,0,false,false);
+  const pt=new THREE.PointLight(CS==='dusk'?0xffe890:0xfff5cc,CS==='dusk'?1.2:.3,22,2);pt.position.set(x+flip*2.1,h-.3,z);scene.add(pt);
+}
+for(let i=-150;i<=150;i+=24){if(Math.abs(i)<22)continue;lamp(-24,i,1);lamp(24,i,-1);lamp(i,-24,1);lamp(i,24,-1);}
+
+function tlight(x,z,ry){
+  addBox(new THREE.CylinderGeometry(.08,.1,6,10),poleMat,x,3,z);
+  const bx=new THREE.Mesh(new THREE.BoxGeometry(.44,1.4,.32),new THREE.MeshStandardMaterial({color:0x0d0d0d,roughness:.5,metalness:.3}));
+  bx.position.set(x,6.3,z);bx.rotation.y=ry;scene.add(bx);
+  [0xff2222,0xffaa00,0x22ff22].forEach((col,i)=>{
+    const on=i===2;const m=new THREE.Mesh(new THREE.CircleGeometry(.1,12),new THREE.MeshBasicMaterial({color:on?col:0x222222}));
+    const ox=Math.sin(ry)*.17,oz=Math.cos(ry)*.17;m.position.set(x+ox,6.7-i*.4,z+oz);m.rotation.y=ry;scene.add(m);
+    if(on){const gl=new THREE.PointLight(0x22ff22,.35,5);gl.position.copy(m.position);scene.add(gl);}
+  });
+}
+tlight(-20,-20,0);tlight(20,-20,Math.PI);tlight(-20,20,0);tlight(20,20,Math.PI);
+
+function stopsign(x,z){
+  addBox(new THREE.CylinderGeometry(.06,.07,4.4,8),poleMat,x,2.2,z);
+  addBox(new THREE.CylinderGeometry(.44,.44,.07,8),new THREE.MeshStandardMaterial({color:0xcc1818,roughness:.5}),x,4.5,z);
+  addBox(new THREE.TorusGeometry(.47,.04,8,8),new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5}),x,4.5,z);
+}
+stopsign(-22,-22);stopsign(22,-22);stopsign(-22,22);stopsign(22,22);
+
+function tree(x,z,s=1){
+  const tM=new THREE.MeshStandardMaterial({color:0x3a2010,roughness:.9});
+  addBox(new THREE.CylinderGeometry(.18*s,.28*s,4*s,10),tM,x,2*s,z);
+  const lcs=[0x246820,0x2e7a20,0x357828,0x1e5010,0x3a8226];
+  [[0,6,0,2.1],[-.9,5.2,.6,1.6],[.9,5.2,-.6,1.6],[.5,4.5,1,1.4],[-.5,4.4,-1,1.4],[0,6.8,0,1.4]].forEach(([cx,cy,cz,cr],i)=>{
+    const m=new THREE.Mesh(new THREE.SphereGeometry(cr*s,10,10),new THREE.MeshStandardMaterial({color:lcs[i%lcs.length],roughness:.9}));
+    m.position.set(x+cx*s,cy*s,z+cz*s);m.castShadow=true;scene.add(m);
+  });
+}
+for(let i=-150;i<=150;i+=20){if(Math.abs(i)<28)continue;tree(-27.5,i,.7+Math.random()*.3);tree(27.5,i,.7+Math.random()*.3);tree(i,-27.5,.7+Math.random()*.3);tree(i,27.5,.7+Math.random()*.3);}
+[[-48,-48],[48,-48],[-48,48],[48,48],[-52,0],[52,0],[0,-52],[0,52],[-75,-75],[75,-75],[-75,75],[75,75]].forEach(p=>tree(p[0],p[1],.8+Math.random()*.4));
+
+function bench(x,z,ry=0){
+  const wM=new THREE.MeshStandardMaterial({color:0x7a3d18,roughness:.75}),mM=new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:.4,metalness:.7});
+  const s=new THREE.Mesh(new THREE.BoxGeometry(2.2,.1,.65),wM);s.position.set(x,.58,z);s.rotation.y=ry;s.castShadow=true;scene.add(s);
+  const bk=new THREE.Mesh(new THREE.BoxGeometry(2.2,.6,.07),wM);bk.position.set(x,.96,z-.28);bk.rotation.y=ry;bk.castShadow=true;scene.add(bk);
+  [-1,1].forEach(lx=>{const l=new THREE.Mesh(new THREE.BoxGeometry(.1,.5,.48),mM);l.position.set(x+lx*.85,.25,z);l.rotation.y=ry;scene.add(l);});
+}
+bench(-26,8,Math.PI/2);bench(-26,-8,Math.PI/2);bench(26,8,-Math.PI/2);bench(26,-8,-Math.PI/2);
+bench(8,-26,0);bench(-8,-26,0);bench(8,26,Math.PI);bench(-8,26,Math.PI);
+
+const buildings=[];
+const beacons=[];
+
+function makeBeacon(pos,topY,color,label){
+  const g=new THREE.Group();g.position.set(pos[0],0,pos[1]);
+  const beamMat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.15});
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,topY+6,8),beamMat);beam.position.y=(topY+6)/2;g.add(beam);
+  const orbMat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9});
+  const orb=new THREE.Mesh(new THREE.SphereGeometry(.65,16,16),orbMat);orb.position.y=topY+3;g.add(orb);
+  const haloMat=new THREE.MeshBasicMaterial({color,transparent:true,opacity:.55});
+  const halo=new THREE.Mesh(new THREE.TorusGeometry(.95,.05,8,32),haloMat);halo.position.y=topY+3;halo.rotation.x=Math.PI/2;g.add(halo);
+  const pl=new THREE.PointLight(color,CS==='dusk'?2.2:1.4,28);pl.position.y=topY+3;g.add(pl);
+  const sc=document.createElement('canvas');sc.width=400;sc.height=80;
+  const sctx=sc.getContext('2d');
+  const hex='#'+color.toString(16).padStart(6,'0');
+  sctx.fillStyle='rgba(0,0,0,.78)';sctx.roundRect(0,8,400,62,12);sctx.fill();
+  sctx.strokeStyle=hex;sctx.lineWidth=2;sctx.roundRect(2,10,396,58,11);sctx.stroke();
+  sctx.font='bold 26px Bebas Neue,sans-serif';sctx.fillStyle='#fff';sctx.textAlign='center';
+  sctx.fillText(label,200,50);
+  const st=new THREE.CanvasTexture(sc);
+  const sm=new THREE.Mesh(new THREE.PlaneGeometry(5.5,1.1),new THREE.MeshBasicMaterial({map:st,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+  sm.position.y=topY+5;g.add(sm);
+  scene.add(g);
+  beacons.push({group:g,orb,halo,beam,label:sm,baseY:topY+3,pl});
+}
+
+function makeBuilding(x,z,w,h,d,br,bg,bb,name,zone,accentHex,distName,contents){
+  const isDusk=CS==='dusk';
+  const g=new THREE.Group();g.position.set(x,0,z);
+  const wf=Math.max(2,Math.floor(h/3.2)),wc=Math.max(2,Math.floor(w/3));
+  const wfd=Math.max(2,Math.floor(h/3.2)),wcd=Math.max(2,Math.floor(d/3));
+  const bt=brickTex(br,bg,bb);
+  const brickM=new THREE.MeshStandardMaterial({map:bt,roughness:.82});
+  const winFrontM=new THREE.MeshStandardMaterial({map:winTex(wf,wc),roughness:.12,metalness:.75,transparent:true,opacity:.92});
+  const winSideM=new THREE.MeshStandardMaterial({map:winTex(wfd,wcd),roughness:.12,metalness:.75,transparent:true,opacity:.92});
+  const main=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),brickM);main.position.y=h/2;main.castShadow=true;main.receiveShadow=true;g.add(main);
+  const eps=0.06;
+  const winF=new THREE.Mesh(new THREE.PlaneGeometry(w*.85,h*.82),winFrontM);winF.position.set(0,h/2,d/2+eps);g.add(winF);
+  const winB=new THREE.Mesh(new THREE.PlaneGeometry(w*.85,h*.82),winFrontM.clone());winB.position.set(0,h/2,-d/2-eps);winB.rotation.y=Math.PI;g.add(winB);
+  const winL=new THREE.Mesh(new THREE.PlaneGeometry(d*.85,h*.82),winSideM);winL.position.set(-w/2-eps,h/2,0);winL.rotation.y=-Math.PI/2;g.add(winL);
+  const winR=new THREE.Mesh(new THREE.PlaneGeometry(d*.85,h*.82),winSideM.clone());winR.position.set(w/2+eps,h/2,0);winR.rotation.y=Math.PI/2;g.add(winR);
+  const parMat=new THREE.MeshStandardMaterial({map:noiseTex(128,128,115,112,108,10),roughness:.7});
+  const par=new THREE.Mesh(new THREE.BoxGeometry(w+.7,.6,d+.7),parMat);par.position.y=h+.3;par.castShadow=true;g.add(par);
+  const acMat=new THREE.MeshStandardMaterial({color:0x7a7a7a,roughness:.5,metalness:.4});
+  for(let i=0;i<3;i++){const ac=new THREE.Mesh(new THREE.BoxGeometry(1.2,.7,.8),acMat);ac.position.set((i-1)*2.5,h+.95,(Math.random()-.5)*d*.35);g.add(ac);}
+  const wtP=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,2.8,8),poleMat);wtP.position.set(w/2-1.5,h+1.6,d/2-1.5);g.add(wtP);
+  const wt=new THREE.Mesh(new THREE.CylinderGeometry(.9,.75,1.4,10),new THREE.MeshStandardMaterial({color:0x5a3c1a,roughness:.85}));wt.position.set(w/2-1.5,h+3.2,d/2-1.5);g.add(wt);
+  const fMat=new THREE.MeshStandardMaterial({map:noiseTex(128,128,100,98,95,8),roughness:.9});
+  const found=new THREE.Mesh(new THREE.BoxGeometry(w+.9,.7,d+.9),fMat);found.position.y=.35;g.add(found);
+  const accentMat=new THREE.MeshStandardMaterial({color:accentHex,roughness:.4,metalness:.5});
+  const canopy=new THREE.Mesh(new THREE.BoxGeometry(5.5,.15,2.8),accentMat);canopy.position.set(0,3.6,d/2+1.2);canopy.castShadow=true;g.add(canopy);
+  [-2,2].forEach(cx=>{const sup=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,3.6,8),poleMat);sup.position.set(cx,1.8,d/2+2.4);g.add(sup);});
+  const glMat=new THREE.MeshStandardMaterial({color:0x6699bb,roughness:.04,metalness:.96,transparent:true,opacity:.42});
+  const door=new THREE.Mesh(new THREE.BoxGeometry(2.6,3.8,.04),glMat);door.position.set(0,1.9,d/2+.1);g.add(door);
+  const frMat=new THREE.MeshStandardMaterial({color:0xaaaaaa,roughness:.25,metalness:.85});
+  const frame=new THREE.Mesh(new THREE.BoxGeometry(2.9,4.1,.07),frMat);frame.position.set(0,2.05,d/2+.08);g.add(frame);
+  const hMat=new THREE.MeshStandardMaterial({color:0xd4a82a,metalness:.95,roughness:.15});
+  [-.55,.55].forEach(hx=>{const h2=new THREE.Mesh(new THREE.BoxGeometry(.08,.35,.08),hMat);h2.position.set(hx,2,d/2+.15);g.add(h2);});
+  const stepMat=new THREE.MeshStandardMaterial({map:noiseTex(128,128,130,128,122,8),roughness:.85});
+  for(let i=0;i<3;i++){const s=new THREE.Mesh(new THREE.BoxGeometry(6.5+i*.8,.15,.85),stepMat);s.position.set(0,.1+i*.15,d/2+1+i*.65);s.receiveShadow=true;g.add(s);}
+  function makeBuildingSign(){
+    const sc=document.createElement('canvas');sc.width=1024;sc.height=200;
+    const sctx=sc.getContext('2d');
+    const hex='#'+accentHex.toString(16).padStart(6,'0');
+    sctx.fillStyle='rgba(0,0,0,.82)';sctx.roundRect(0,0,1024,200,16);sctx.fill();
+    sctx.strokeStyle=hex;sctx.lineWidth=4;sctx.roundRect(4,4,1016,192,14);sctx.stroke();
+    sctx.font='bold 82px Bebas Neue,sans-serif';sctx.fillStyle='#fff';sctx.textAlign='center';
+    sctx.fillText(name,512,88);
+    sctx.font='600 30px Barlow,sans-serif';sctx.fillStyle=hex;
+    sctx.fillText(contents,512,132);
+    sctx.font='600 20px Barlow,sans-serif';sctx.fillStyle='rgba(255,255,255,.45)';
+    sctx.fillText('PRESS  E  TO  ENTER',512,168);
+    return new THREE.CanvasTexture(sc);
+  }
+  const sMat=new THREE.MeshBasicMaterial({map:makeBuildingSign(),transparent:true,side:THREE.DoubleSide});
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(w*.9,w*.2),sMat);sign.position.set(0,h+2.5,d/2+.35);g.add(sign);
+  const signB=sign.clone();signB.position.z=-d/2-.35;signB.rotation.y=Math.PI;g.add(signB);
+  if(isDusk){
+    const glow=new THREE.PointLight(accentHex,1,20);glow.position.set(0,h*.65,d/2+2);g.add(glow);
+    const eglow=new THREE.PointLight(0xffeebb,.6,10);eglow.position.set(0,3,d/2+3.5);g.add(eglow);
+    const neonL=new THREE.PointLight(accentHex,.6,14);neonL.position.set(0,h+.6,d/2+1);g.add(neonL);
+  }
+  scene.add(g);
+  sw(x,z,w+14,d+14);curb(x,z,w+15.5,d+15.5);
+  makeBeacon([x,z],h,accentHex,name);
+  const doorPos=new THREE.Vector3(x,1.75,z+d/2+5.5);
+  buildings.push({group:g,position:new THREE.Vector3(x,0,z),size:new THREE.Vector3(w,h,d),zone,name,color:accentHex,doorPos,distName,contents});
+}
+
+makeBuilding( 0,-75, 18,38,14, 155,58,48,  'ANURIT BAGGA HQ',  'origin',   0xe74c3c,'About Me',       'Bio &middot; Stats &middot; Location');
+makeBuilding(-75,  0, 18,30,14,  45,80,135, 'TECH ARSENAL',     'skills',   0x3498db,'Tech Skills',    'Frontend &middot; Backend &middot; AI / Data');
+makeBuilding( 75,  0, 18,32,14, 130,78,30,  'PROJECT VENTURES', 'projects', 0xe67e22,'Projects',       'Web Meet N Greet &middot; Kaksha-AI');
+makeBuilding(  0, 75, 18,28,16,  35,110,65, 'ACADEMIA CENTER',  'education',0x2ecc71,'Education',      'Degrees &middot; GPA 7.95 &middot; Certs');
+makeBuilding(-55,-55, 14,22,13,  88,48,130, 'CONNECT HUB',      'contact',  0x9b59b6,'Contact',        'Email &middot; LinkedIn &middot; GitHub');
+
+const bgBuildings=[
+  [-88,-40,11,26,11,160,55,55,'Cafe'],[-88,40,13,32,13,45,115,95,'Books'],
+  [88,-40,10,22,10,175,148,28,'Market'],[88,40,13,28,13,55,95,165,'Bank'],
+  [-40,-88,11,20,11,185,75,75,'Gym'],[40,-88,14,24,14,115,75,165,'Clinic'],
+  [-40,88,11,21,11,55,135,95,'School'],[40,88,13,25,13,165,135,48,'Mall'],
+  [-70,-70,9,18,9,135,125,115,'Studio'],[70,-70,11,22,11,95,105,125,'Office'],
+  [-70,70,11,20,11,72,95,85,'Shop'],[70,70,9,17,9,45,55,65,'Lab'],
+  [-112,0,10,38,10,155,98,48,'TowerA'],[112,0,10,42,10,72,115,155,'TowerB'],
+  [0,-112,10,36,10,135,55,75,'TowerC'],[0,112,10,30,10,55,125,75,'TowerD']
+];
+bgBuildings.forEach(([bx,bz,w,h,d,r,gg,b2,nm])=>{
+  const isDusk=CS==='dusk';const wf=Math.max(2,Math.floor(h/3.5)),wc=Math.max(2,Math.floor(w/3));
+  const bM=new THREE.MeshStandardMaterial({map:brickTex(r,gg,b2),roughness:.82});
+  const wM=new THREE.MeshStandardMaterial({map:winTex(wf,wc),roughness:.14,metalness:.72,transparent:true,opacity:.88});
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),bM);m.position.set(bx,h/2,bz);m.castShadow=true;m.receiveShadow=true;scene.add(m);
+  const e2=0.06;
+  const wfM=new THREE.Mesh(new THREE.PlaneGeometry(w*.82,h*.78),wM);wfM.position.set(bx,h/2,bz+d/2+e2);scene.add(wfM);
+  const wbM=new THREE.Mesh(new THREE.PlaneGeometry(w*.82,h*.78),wM.clone());wbM.position.set(bx,h/2,bz-d/2-e2);wbM.rotation.y=Math.PI;scene.add(wbM);
+  const wlM=new THREE.Mesh(new THREE.PlaneGeometry(d*.82,h*.78),wM.clone());wlM.position.set(bx-w/2-e2,h/2,bz);wlM.rotation.y=-Math.PI/2;scene.add(wlM);
+  const wrM=new THREE.Mesh(new THREE.PlaneGeometry(d*.82,h*.78),wM.clone());wrM.position.set(bx+w/2+e2,h/2,bz);wrM.rotation.y=Math.PI/2;scene.add(wrM);
+  addBox(new THREE.BoxGeometry(w+.4,.42,d+.4),new THREE.MeshStandardMaterial({color:0x2a3040}),bx,h+.21,bz,0,false,false);
+  if(isDusk){const gl=new THREE.PointLight(0xffcc66,.45,18);gl.position.set(bx,h*.7,bz);scene.add(gl);}
+});
+
+const cars=[];
+function buildCarMesh(col){
+  const g=new THREE.Group();
+  const bMat=new THREE.MeshStandardMaterial({color:col,roughness:.28,metalness:.72});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(4.7,.88,2),bMat);body.position.y=.7;body.castShadow=true;g.add(body);
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(2.5,.62,1.75),bMat);roof.position.set(.2,1.38,0);g.add(roof);
+  const glMat2=new THREE.MeshStandardMaterial({color:0x1a2f44,roughness:.04,metalness:.95,transparent:true,opacity:.6});
+  const ws=new THREE.Mesh(new THREE.BoxGeometry(.04,.48,1.72),glMat2);ws.position.set(.98,1.3,0);ws.rotation.z=-.22;g.add(ws);
+  const rs=new THREE.Mesh(new THREE.BoxGeometry(.04,.48,1.72),glMat2);rs.position.set(-1.38,1.3,0);rs.rotation.z=.22;g.add(rs);
+  const wlM=new THREE.MeshStandardMaterial({color:0x111111,roughness:.9}),rimM=new THREE.MeshStandardMaterial({color:0x888888,roughness:.25,metalness:.9});
+  [[1.45,.38,1.06],[1.45,.38,-1.06],[-1.45,.38,1.06],[-1.45,.38,-1.06]].forEach(([wx,wy,wz])=>{
+    const wh=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.26,16),wlM);wh.position.set(wx,wy,wz);wh.rotation.x=Math.PI/2;wh.castShadow=true;g.add(wh);
+    const rim=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.28,8),rimM);rim.position.set(wx,wy,wz);rim.rotation.x=Math.PI/2;g.add(rim);
+  });
+  [1.06,-1.06].forEach(lz=>{
+    const hl=new THREE.Mesh(new THREE.BoxGeometry(.04,.18,.32),new THREE.MeshBasicMaterial({color:0xffffff}));hl.position.set(2.37,.7,lz);g.add(hl);
+    const tl=new THREE.Mesh(new THREE.BoxGeometry(.04,.16,.28),new THREE.MeshBasicMaterial({color:0xff2020}));tl.position.set(-2.37,.7,lz);g.add(tl);
+  });
+  if(CS==='dusk'){[1.06,-1.06].forEach(lz=>{const pl=new THREE.SpotLight(0xffffff,1.5,22,.3,.5);pl.position.set(2.4,.7,lz);pl.target.position.set(10,.7,lz);g.add(pl);g.add(pl.target);});}
+  return g;
+}
+function car(col,x,z,path,dir,spd){
+  const g=buildCarMesh(col);g.position.set(x,0,z);
+  if(path==='h')g.rotation.y=dir>0?0:Math.PI;else g.rotation.y=dir>0?-Math.PI/2:Math.PI/2;
+  scene.add(g);cars.push({group:g,speed:spd*dir,path});
+}
+car(0xc0392b,-110,4.5,'h',1,.09);car(0xe8a020,-55,4.5,'h',1,.11);car(0x1abc9c,-22,4.5,'h',1,.075);
+car(0x2980b9,110,-4.5,'h',-1,.07);car(0x27ae60,55,-4.5,'h',-1,.08);car(0x34495e,25,-4.5,'h',-1,.065);
+car(0x8e44ad,4.5,-110,'v',1,.10);car(0xf1c40f,4.5,-55,'v',1,.09);car(0xff6b6b,4.5,-22,'v',1,.07);
+car(0x9b59b6,-4.5,110,'v',-1,.06);car(0xfd79a8,-4.5,55,'v',-1,.08);car(0x00cec9,-4.5,22,'v',-1,.09);
+
+const peds=[];
+const pCols=[0x2980b9,0xe74c3c,0x2ecc71,0xf1c40f,0x9b59b6,0xe67e22,0x1abc9c,0xff6b9d,0x34495e,0x16a085,0xfd79a8,0x00cec9];
+for(let i=0;i<16;i++){
+  const g=new THREE.Group(),side=Math.random()>.5?1:-1,axis=Math.random()>.5?'x':'z';
+  let px,pz;if(axis==='x'){px=(Math.random()-.5)*180;pz=side*(22+Math.random()*2);}else{px=side*(22+Math.random()*2);pz=(Math.random()-.5)*180;}
+  g.position.set(px,0,pz);
+  const col=pCols[i%pCols.length];
+  const bMat=new THREE.MeshStandardMaterial({color:col,roughness:.8}),sMat=new THREE.MeshStandardMaterial({color:0xf0c8a0,roughness:.9}),pMat=new THREE.MeshStandardMaterial({color:0x2c3e50,roughness:.9});
+  const torso=new THREE.Mesh(new THREE.BoxGeometry(.48,.72,.24),bMat);torso.position.set(0,.98,0);g.add(torso);
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.17,8,8),sMat);head.position.set(0,1.57,0);g.add(head);
+  [-.17,.17].forEach(lx=>{const leg=new THREE.Mesh(new THREE.BoxGeometry(.17,.62,.2),pMat);leg.position.set(lx,.31,0);g.add(leg);});
+  [-.27,.27].forEach(ax=>{const arm=new THREE.Mesh(new THREE.BoxGeometry(.13,.56,.14),bMat);arm.position.set(ax,.9,0);g.add(arm);});
+  scene.add(g);peds.push({group:g,speed:.016+Math.random()*.022,direction:Math.random()>.5?1:-1,axis,wo:Math.random()*Math.PI*2});
+}
+
+const clouds=[];
+for(let i=0;i<18;i++){
+  const cg=new THREE.Group();
+  const cMat=new THREE.MeshStandardMaterial({color:CS==='dusk'?0x2a3050:0xedf1f8,roughness:1,transparent:true,opacity:CS==='dusk'?.5:.28});
+  [[0,0,0,2.5],[2,.2,.4,2],[-2,.1,-.4,2],[0,1.2,0,1.8],[1.2,.7,.7,1.5],[-1.2,.6,-.6,1.5]].forEach(([cx,cy,cz,cr])=>{
+    const m=new THREE.Mesh(new THREE.SphereGeometry(cr,10,10),cMat);m.position.set(cx,cy,cz);cg.add(m);
+  });
+  cg.position.set((Math.random()-.5)*300,38+Math.random()*24,(Math.random()-.5)*300);
+  const sc=.7+Math.random()*1.8;cg.scale.setScalar(sc);scene.add(cg);clouds.push({mesh:cg,speed:.012+Math.random()*.02});
+}
+
+let rain=null;
+if(cfg.rain){
+  const rg=new THREE.BufferGeometry(),n=10000,rp=new Float32Array(n*3);
+  for(let i=0;i<n*3;i+=3){rp[i]=(Math.random()-.5)*200;rp[i+1]=Math.random()*80+20;rp[i+2]=(Math.random()-.5)*200;}
+  rg.setAttribute('position',new THREE.BufferAttribute(rp,3));
+  rain=new THREE.Points(rg,new THREE.PointsMaterial({size:.1,color:0x88aacc,transparent:true,opacity:.5}));
+  scene.add(rain);
+}
+
+const controls=new PointerLockControls(camera,document.body);
+const keys={w:0,a:0,s:0,d:0,shift:0};
+const vel=new THREE.Vector3(),dir2=new THREE.Vector3();
+document.addEventListener('keydown',e=>{
+  if(e.code==='KeyW')keys.w=1;if(e.code==='KeyA')keys.a=1;
+  if(e.code==='KeyS')keys.s=1;if(e.code==='KeyD')keys.d=1;
+  if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.shift=1;
+  if(e.code==='KeyE')tryInteract();
+  if(e.code==='Escape'&&document.getElementById('modal').classList.contains('on'))closeModal();
+  else if(e.code==='Escape')controls.unlock();
+});
+document.addEventListener('keyup',e=>{
+  if(e.code==='KeyW')keys.w=0;if(e.code==='KeyA')keys.a=0;
+  if(e.code==='KeyS')keys.s=0;if(e.code==='KeyD')keys.d=0;
+  if(e.code==='ShiftLeft'||e.code==='ShiftRight')keys.shift=0;
+});
+document.addEventListener('click',e=>{
+  if(e.target&&e.target.id==='startBtn')return;
+  const w=document.getElementById('welcome');
+  if(w&&!w.classList.contains('hide'))return;
+  if(!controls.isLocked&&!document.getElementById('modal').classList.contains('on'))controls.lock();
+});
+controls.addEventListener('lock',()=>document.getElementById('xhair').classList.add('on'));
+controls.addEventListener('unlock',()=>document.getElementById('xhair').classList.remove('on'));
+
+const cur=document.getElementById('cur'),ring=document.getElementById('curR');
+let mx=0,my=0,rx=0,ry3=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+function updateCursor(){cur.style.left=mx+'px';cur.style.top=my+'px';rx+=(mx-rx)*.12;ry3+=(my-ry3)*.12;ring.style.left=rx+'px';ring.style.top=ry3+'px';}
+
+const compassDirs=['N','NE','E','SE','S','SW','W','NW'];
+function updateCompass(){
+  const fwd=new THREE.Vector3(0,0,-1);fwd.applyQuaternion(camera.quaternion);
+  const angle=Math.atan2(fwd.x,fwd.z)*180/Math.PI;
+  const idx=Math.round((angle+360)/45)%8;
+  compassDirs.forEach(d=>{
+    const el=document.getElementById('c'+d);
+    if(el)el.className='cdir'+(compassDirs[idx]===d?' active':'');
+  });
+}
+
+let nearby=null;
+function checkZone(){
+  let c=null,cd=Infinity;
+  buildings.forEach(b=>{const d=camera.position.distanceTo(b.doorPos);if(d<cd){cd=d;c=b;}});
+  const zi=document.getElementById('zoneName'),zs=document.getElementById('zoneSub');
+  if(c&&cd<16){
+    nearby=c;
+    zi.textContent=c.name;zi.style.opacity='1';zi.style.color='#'+c.color.toString(16).padStart(6,'0');
+    zs.textContent=c.contents;zs.style.opacity='1';
+    document.getElementById('ptxt').textContent='ENTER '+c.distName.toUpperCase();
+    document.getElementById('pdesc').textContent=c.contents;
+    document.getElementById('iprompt').classList.add('on');
+  } else {
+    nearby=null;zi.style.opacity='0';zs.style.opacity='0';
+    document.getElementById('iprompt').classList.remove('on');
+  }
+  buildings.forEach((b,i)=>{
+    const d=camera.position.distanceTo(b.doorPos);
+    const el=document.getElementById('ld'+i);
+    if(el){if(d<16)el.textContent='NEAR';else if(d<40)el.textContent=Math.round(d)+'m &uarr;';else el.textContent=Math.round(d)+'m';}
+  });
+}
+function tryInteract(){if(nearby)openModal(nearby.zone);}
+
+const BUILDINGS_META={
+  origin:{emoji:"&#127962;",color:"#e74c3c",bg:"linear-gradient(135deg,#1a0a0a 0%,#0d0d0d 100%)",accent:"#e74c3c",
+    tabs:["Profile","Contact"],
+    panels:{
+      "Profile":`<div class="int-hero"><div class="int-avatar" style="background:rgba(231,76,60,.15);border:2px solid rgba(231,76,60,.3)">&#127962;</div><div class="int-hero-text"><h1>ANURIT BAGGA</h1><p>Computer Science undergraduate from <strong>Chandigarh, India</strong> &mdash; passionate about full-stack development, AI-driven systems, and building things at the frontier of technology.</p><div class="int-hero-tags"><span class="int-htag">Full-Stack Dev</span><span class="int-htag">AI / Data</span><span class="int-htag">RL Environments</span><span class="int-htag">Open to Work</span></div></div></div><div class="int-stats"><div class="int-stat"><div class="int-stat-num" style="color:#ffdc32">7.95</div><div class="int-stat-lbl">CGPA</div></div><div class="int-stat"><div class="int-stat-num" style="color:#e74c3c">2+</div><div class="int-stat-lbl">Projects</div></div><div class="int-stat"><div class="int-stat-num" style="color:#3498db">2</div><div class="int-stat-lbl">Certs</div></div><div class="int-stat"><div class="int-stat-num" style="color:#2ecc71">4th</div><div class="int-stat-lbl">Year</div></div></div><div class="int-section-title">About Me</div><p style="color:rgba(255,255,255,.7);line-height:1.9;font-size:1rem;font-weight:400">Built real-time applications and adaptive data pipelines. Passionate about RL environments, model evaluation, and enterprise AI. Driven by curiosity, ownership, and the desire to build things that matter at the frontier of AI.</p>`,
+      "Contact":`<div class="int-section-title">Get In Touch</div><div class="contact-grid"><a href="mailto:baggaanurit@gmail.com" class="contact-item"><div class="ci-icon" style="background:rgba(231,76,60,.15)">&#128231;</div><div><div class="ci-label">Email</div><div class="ci-val">baggaanurit@gmail.com</div></div></a><a href="tel:+919356000514" class="contact-item"><div class="ci-icon" style="background:rgba(46,204,113,.12)">&#128222;</div><div><div class="ci-label">Phone</div><div class="ci-val">+91-9356000514</div></div></a><a href="https://linkedin.com/in/anuritbagga/" class="contact-item"><div class="ci-icon" style="background:rgba(0,119,181,.15)">&#128188;</div><div><div class="ci-label">LinkedIn</div><div class="ci-val">anuritbagga</div></div></a><a href="https://github.com/AnuritBagga" class="contact-item"><div class="ci-icon" style="background:rgba(255,255,255,.08)">&#128025;</div><div><div class="ci-label">GitHub</div><div class="ci-val">AnuritBagga</div></div></a></div><div class="int-section-title" style="margin-top:28px">Location</div><div class="edu-row"><div class="edu-icon">&#128205;</div><div><div class="edu-title">Chandigarh, India</div><div class="edu-meta">B.E. Computer Science &middot; Chandigarh University</div></div></div>`
+    }
+  },
+  skills:{emoji:"&#128187;",color:"#3498db",bg:"linear-gradient(135deg,#060e1a 0%,#0a0d12 100%)",accent:"#3498db",
+    tabs:["Frontend","Backend","AI & Data","Tools"],
+    panels:{
+      "Frontend":`<div class="int-section-title">Frontend Technologies</div><div class="chip-group"><span class="chip" style="background:rgba(97,218,251,.1);border-color:rgba(97,218,251,.3);color:#61dafb">React.js</span><span class="chip" style="background:rgba(0,0,0,.3);border-color:rgba(255,255,255,.2);color:#fff">Next.js</span><span class="chip" style="background:rgba(49,120,198,.15);border-color:rgba(49,120,198,.35);color:#3178c6">TypeScript</span><span class="chip" style="background:rgba(240,219,79,.12);border-color:rgba(240,219,79,.3);color:#f0db4f">JavaScript</span><span class="chip" style="background:rgba(97,218,251,.08);border-color:rgba(97,218,251,.25);color:#79d4f0">WebRTC</span><span class="chip" style="background:rgba(100,200,100,.1);border-color:rgba(100,200,100,.25);color:#88d88a">REST APIs</span><span class="chip" style="background:rgba(9,120,93,.15);border-color:rgba(9,120,93,.3);color:#009688">FastAPI</span><span class="chip" style="background:rgba(228,76,44,.12);border-color:rgba(228,76,44,.3);color:#e44d26">HTML/CSS</span></div><div class="int-section-title" style="margin-top:28px">Experience Level</div><div style="display:flex;flex-direction:column;gap:12px"><div class="progress-row"><div class="progress-label">React.js</div><div class="progress-track"><div class="progress-fill" style="width:90%"></div></div><div class="progress-value">90%</div></div><div class="progress-row"><div class="progress-label">Next.js</div><div class="progress-track"><div class="progress-fill" style="width:78%"></div></div><div class="progress-value">78%</div></div><div class="progress-row"><div class="progress-label">TypeScript</div><div class="progress-track"><div class="progress-fill" style="width:75%"></div></div><div class="progress-value">75%</div></div><div class="progress-row"><div class="progress-label">JavaScript</div><div class="progress-track"><div class="progress-fill" style="width:88%"></div></div><div class="progress-value">88%</div></div><div class="progress-row"><div class="progress-label">HTML/CSS</div><div class="progress-track"><div class="progress-fill" style="width:92%"></div></div><div class="progress-value">92%</div></div></div>`,
+      "Backend":`<div class="int-section-title">Backend &amp; Databases</div><div class="chip-group"><span class="chip" style="background:rgba(55,118,171,.12);border-color:rgba(55,118,171,.3);color:#3776ab">Python</span><span class="chip" style="background:rgba(237,117,0,.12);border-color:rgba(237,117,0,.3);color:#ed7500">Java</span><span class="chip" style="background:rgba(0,117,143,.12);border-color:rgba(0,117,143,.3);color:#00758f">MySQL</span><span class="chip" style="background:rgba(77,179,61,.12);border-color:rgba(77,179,61,.3);color:#4db33d">MongoDB</span><span class="chip" style="background:rgba(0,144,209,.12);border-color:rgba(0,144,209,.3);color:#0090d1">Docker</span><span class="chip" style="background:rgba(200,200,200,.08);border-color:rgba(200,200,200,.2);color:#ccc">SQL</span></div>`,
+      "AI & Data":`<div class="int-section-title">AI / Data Engineering Skills</div><div class="info-card"><div class="info-card-title">Adaptive Pipeline Design</div><div class="info-card-desc">Converting raw/unstructured data into structured, training-ready datasets</div></div><div class="info-card"><div class="info-card-title">Evaluation Rubric Design</div><div class="info-card-desc">Creating rubrics to benchmark model output quality and task performance</div></div><div class="info-card"><div class="info-card-title">Data Benchmarking</div><div class="info-card-desc">Designing evaluation sets and measuring model performance across tasks</div></div><div class="info-card"><div class="info-card-title">RL Environments</div><div class="info-card-desc">Building simulation environments suitable for reinforcement learning workflows</div></div><div class="info-card"><div class="info-card-title">Model Evaluation</div><div class="info-card-desc">Systematic evaluation of LLM/ML outputs across diverse task categories</div></div>`,
+      "Tools":`<div class="int-section-title">Developer Tools &amp; CS Fundamentals</div><div class="chip-group"><span class="chip" style="background:rgba(240,80,50,.12);border-color:rgba(240,80,50,.3);color:#f05032">Git</span><span class="chip" style="background:rgba(36,41,46,.4);border-color:rgba(255,255,255,.2);color:#fff">GitHub</span><span class="chip" style="background:rgba(0,144,209,.12);border-color:rgba(0,144,209,.3);color:#0090d1">Docker</span><span class="chip" style="background:rgba(255,220,50,.1);border-color:rgba(255,220,50,.25);color:#ffdc32">DSA</span><span class="chip" style="background:rgba(52,152,219,.1);border-color:rgba(52,152,219,.25);color:#3498db">DBMS</span><span class="chip" style="background:rgba(155,89,182,.12);border-color:rgba(155,89,182,.3);color:#9b59b6">OS</span><span class="chip" style="background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.25);color:#2ecc71">Computer Networks</span></div>`
+    }
+  },
+  projects:{emoji:"&#128640;",color:"#e67e22",bg:"linear-gradient(135deg,#120a02 0%,#0d0d0d 100%)",accent:"#e67e22",
+    tabs:["Web Meet N Greet","Kaksha-AI"],
+    panels:{
+      "Web Meet N Greet":`<div class="proj-card" style="border-color:rgba(230,126,34,.25)"><div class="proj-card-title">WEB MEET N GREET</div><div class="proj-card-tech" style="color:#e67e22">React.js &middot; WebRTC &middot; REST APIs &middot; Full-Stack</div><div class="proj-card-desc">Full-stack real-time video + chat system for concurrent users. Implemented session-matching logic with efficient data structures &mdash; applicable to RL simulation workflows and task environments.</div></div><div class="int-section-title">Key Features</div><div class="feature-list"><div class="feature-item"><div class="feature-bullet">&#9658;</div><div class="feature-text">Real-time peer-to-peer video/audio using WebRTC</div></div><div class="feature-item"><div class="feature-bullet">&#9658;</div><div class="feature-text">Session-matching logic with efficient data structures</div></div><div class="feature-item"><div class="feature-bullet">&#9658;</div><div class="feature-text">REST API backend with live state management</div></div><div class="feature-item"><div class="feature-bullet">&#9658;</div><div class="feature-text">End-to-end debugging & production-grade performance</div></div><div class="feature-item"><div class="feature-bullet">&#9658;</div><div class="feature-text">Concurrent multi-user support with room management</div></div></div>`,
+      "Kaksha-AI":`<div class="proj-card" style="border-color:rgba(52,152,219,.25)"><div class="proj-card-title">KAKSHA-AI</div><div class="proj-card-tech" style="color:#3498db">Python &middot; React &middot; Data Pipelines &middot; Adaptive Learning</div><div class="proj-card-desc">Designed data workflows converting unorganized content into adaptive study plans &mdash; applicable to building data engineering pipelines for RL training environments. Built content evaluation rubrics and adaptive assessments.</div></div><div class="int-section-title">Key Features</div><div class="feature-list"><div class="feature-item"><div class="feature-bullet" style="color:#3498db">&#9658;</div><div class="feature-text">Adaptive data pipeline for unstructured content ingestion</div></div><div class="feature-item"><div class="feature-bullet" style="color:#3498db">&#9658;</div><div class="feature-text">Content evaluation rubrics for AI output quality measurement</div></div><div class="feature-item"><div class="feature-bullet" style="color:#3498db">&#9658;</div><div class="feature-text">Personalized study plan generation from raw material</div></div><div class="feature-item"><div class="feature-bullet" style="color:#3498db">&#9658;</div><div class="feature-text">Performance benchmarking across learner assessments</div></div><div class="feature-item"><div class="feature-bullet" style="color:#3498db">&#9658;</div><div class="feature-text">Iterative feature delivery under tight feedback loops</div></div></div>`
+    }
+  },
+  education:{emoji:"&#127891;",color:"#2ecc71",bg:"linear-gradient(135deg,#051008 0%,#0a0d0a 100%)",accent:"#2ecc71",
+    tabs:["Degrees","Certifications"],
+    panels:{
+      "Degrees":`<div class="int-section-title">Academic Background</div><div class="edu-row"><div class="edu-icon" style="border-color:rgba(46,204,113,.3)">&#127963;</div><div><div class="edu-title">Bachelor of Engineering &mdash; Computer Science</div><div class="edu-inst" style="color:#2ecc71">Chandigarh University</div><div class="edu-meta">2023 &mdash; Present &nbsp;&middot;&nbsp; CGPA <strong>7.95 / 10</strong></div></div></div><div class="edu-row"><div class="edu-icon" style="border-color:rgba(46,204,113,.2)">&#127979;</div><div><div class="edu-title">Senior Secondary (Class XII)</div><div class="edu-inst" style="color:#2ecc71">Bhavan's SL Public School</div><div class="edu-meta">2020&ndash;2022 &nbsp;&middot;&nbsp; <strong>83.17%</strong></div></div></div><div class="edu-row"><div class="edu-icon" style="border-color:rgba(46,204,113,.2)">&#128218;</div><div><div class="edu-title">Secondary School (Class X)</div><div class="edu-inst" style="color:#2ecc71">Bhavan's SL Public School</div><div class="edu-meta">2019&ndash;2020 &nbsp;&middot;&nbsp; <strong>83.7%</strong></div></div></div>`,
+      "Certifications":`<div class="int-section-title">Earned Certifications</div><div class="edu-row"><div class="edu-icon" style="border-color:rgba(0,120,212,.3)">&#129695;</div><div><div class="edu-title">Career Essentials in Generative AI</div><div class="edu-inst" style="color:#0078d4">Microsoft</div><div class="edu-meta">April 2024</div></div></div><div class="edu-row"><div class="edu-icon" style="border-color:rgba(69,132,245,.3)">&#128187;</div><div><div class="edu-title">Certificate in Coding</div><div class="edu-inst" style="color:#4584f5">Coursera</div><div class="edu-meta">July 2024</div></div></div>`
+    }
+  },
+  contact:{emoji:"&#128140;",color:"#9b59b6",bg:"linear-gradient(135deg,#0d0612 0%,#0a0a0d 100%)",accent:"#9b59b6",
+    tabs:["Connect","Competencies"],
+    panels:{
+      "Connect":`<div class="int-hero"><div class="int-avatar" style="background:rgba(155,89,182,.15);border:2px solid rgba(155,89,182,.3)">&#128140;</div><div class="int-hero-text"><h1>LET'S CONNECT</h1><p>Whether it's a groundbreaking AI project, a scalable full-stack app, or an RL environment &mdash; I'm ready to bring curiosity, ownership, and technical excellence to the table.</p></div></div><div class="int-section-title">Channels</div><div class="contact-grid"><a href="mailto:baggaanurit@gmail.com" class="contact-item"><div class="ci-icon" style="background:rgba(231,76,60,.15)">&#128231;</div><div><div class="ci-label">Email</div><div class="ci-val">baggaanurit@gmail.com</div></div></a><a href="tel:+919356000514" class="contact-item"><div class="ci-icon" style="background:rgba(46,204,113,.12)">&#128222;</div><div><div class="ci-label">Phone</div><div class="ci-val">+91-9356000514</div></div></a><a href="https://linkedin.com/in/anuritbagga/" class="contact-item"><div class="ci-icon" style="background:rgba(0,119,181,.15)">&#128188;</div><div><div class="ci-label">LinkedIn</div><div class="ci-val">linkedin.com/in/anuritbagga</div></div></a><a href="https://github.com/AnuritBagga" class="contact-item"><div class="ci-icon" style="background:rgba(255,255,255,.08)">&#128025;</div><div><div class="ci-label">GitHub</div><div class="ci-val">github.com/AnuritBagga</div></div></a></div>`,
+      "Competencies":`<div class="int-section-title">Core Competencies</div><div class="chip-group"><span class="comp-tag" style="background:rgba(255,220,50,.08);border-color:rgba(255,220,50,.2);color:#ffdc32">DSA &amp; Problem Solving</span><span class="comp-tag" style="background:rgba(231,76,60,.1);border-color:rgba(231,76,60,.22);color:#e74c3c">Real-Time Systems</span><span class="comp-tag" style="background:rgba(52,152,219,.1);border-color:rgba(52,152,219,.22);color:#3498db">Data Pipeline Design</span><span class="comp-tag" style="background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.22);color:#2ecc71">Evaluation &amp; Benchmarking</span><span class="comp-tag" style="background:rgba(230,126,34,.1);border-color:rgba(230,126,34,.22);color:#e67e22">React.js &amp; Python</span><span class="comp-tag" style="background:rgba(155,89,182,.1);border-color:rgba(155,89,182,.22);color:#9b59b6">Cross-functional Teams</span><span class="comp-tag" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.8)">High Ownership</span><span class="comp-tag" style="background:rgba(255,220,50,.08);border-color:rgba(255,220,50,.2);color:#ffdc32">Frontier AI</span></div>`
+    }
+  }
+};
+
+window.openModal=function(id){
+  const meta=BUILDINGS_META[id];
+  if(!meta)return;
+  const tabs=meta.tabs;
+  const firstTab=tabs[0];
+  const tabsHTML=tabs.map(t=>`<div class="int-tab${t===firstTab?' active':''}" onclick="switchTab('${t}',this)">${t}</div>`).join('');
+  const panelsHTML=tabs.map(t=>`<div class="int-panel${t===firstTab?' active':''}" id="panel-${t.replace(/\s+/g,'-')}">${meta.panels[t]||''}</div>`).join('');
+
+  const buildingNames={
+    origin:'ANURIT BAGGA HQ',
+    skills:'TECH ARSENAL',
+    projects:'PROJECT VENTURES',
+    education:'ACADEMIA CENTER',
+    contact:'CONNECT HUB'
+  };
+
+  document.getElementById('mbody').innerHTML=`
+    <div class="interior" style="--accent-color:${meta.accent}; background:${meta.bg}">
+      <div class="interior-bg">
+        <div class="interior-ceil"></div>
+        <div class="interior-floor"></div>
+        <div class="interior-left"></div>
+        <div class="interior-right"></div>
+        <div class="interior-vignette"></div>
+        <div class="ambient-light"></div>
+      </div>
+      <div class="int-topbar">
+        <div class="int-topbar-left">
+          <div class="int-badge" style="background:${meta.color}22;border:2px solid ${meta.color}44">${meta.emoji}</div>
+          <div>
+            <div class="int-building-name" style="color:${meta.color}">${buildingNames[id]}</div>
+            <div class="int-building-sub">Portfolio &nbsp;&middot;&nbsp; Press ESC or click Exit to leave</div>
+          </div>
+        </div>
+        <button class="int-exit" onclick="closeModal()"><i class="fas fa-sign-out-alt"></i> EXIT BUILDING</button>
+      </div>
+      <div class="int-nav">${tabsHTML}</div>
+      <div class="int-content">${panelsHTML}</div>
+    </div>`;
+  document.getElementById('modal').classList.add('on');
+  controls.unlock();
+};
+window.switchTab=function(name,el){
+  const allTabs=el.parentElement.querySelectorAll('.int-tab');
+  allTabs.forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const content=el.closest('.interior').querySelector('.int-content');
+  content.querySelectorAll('.int-panel').forEach(p=>p.classList.remove('active'));
+  const target=content.querySelector('#panel-'+name.replace(/\s+/g,'-'));
+  if(target)target.classList.add('active');
+};
+
+window.closeModal=function(){document.getElementById('modal').classList.remove('on');};
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+document.getElementById('startBtn').addEventListener('click',()=>{
+  const w=document.getElementById('welcome');
+  w.classList.add('hide');
+  controls.lock();
+  setTimeout(()=>{w.style.display='none';},900);
+});
+
+const mmCtx=document.getElementById('mmc').getContext('2d');
+function drawMinimap(){
+  mmCtx.clearRect(0,0,190,190);
+  const bg=mmCtx.createRadialGradient(95,95,0,95,95,95);
+  bg.addColorStop(0,CS==='dusk'?'#141c2e':'#1e3040');
+  bg.addColorStop(1,CS==='dusk'?'#060a12':'#0e1820');
+  mmCtx.fillStyle=bg;mmCtx.beginPath();mmCtx.arc(95,95,95,0,Math.PI*2);mmCtx.fill();
+  mmCtx.fillStyle='rgba(80,80,80,.7)';mmCtx.fillRect(0,88,190,14);mmCtx.fillRect(88,0,14,190);
+  mmCtx.fillStyle='rgba(240,200,0,.35)';mmCtx.fillRect(0,94,190,2);mmCtx.fillRect(94,0,2,190);
+  buildings.forEach((b,i)=>{
+    const bx=95+b.position.x*.38,bz=95+b.position.z*.38,bw=b.size.x*.38,bd=b.size.z*.38;
+    const hex='#'+b.color.toString(16).padStart(6,'0');
+    mmCtx.fillStyle=hex;mmCtx.fillRect(bx-bw/2,bz-bd/2,bw,bd);
+    mmCtx.strokeStyle='rgba(255,255,255,.4)';mmCtx.lineWidth=1;mmCtx.strokeRect(bx-bw/2,bz-bd/2,bw,bd);
+    const d=camera.position.distanceTo(b.doorPos);
+    if(d<16){mmCtx.fillStyle='#fff';mmCtx.font='bold 7px sans-serif';mmCtx.textAlign='center';mmCtx.fillText('YOU',bx,bz-bw/2-3);}
+  });
+  cars.forEach(c=>{const cx=95+c.group.position.x*.38,cz=95+c.group.position.z*.38;mmCtx.fillStyle='#ffcc00';mmCtx.fillRect(cx-1.5,cz-2,3,4);});
+  const px=95+camera.position.x*.38,pz=95+camera.position.z*.38;
+  mmCtx.beginPath();mmCtx.arc(px,pz,5.5,0,Math.PI*2);mmCtx.fillStyle='#ff3030';mmCtx.fill();mmCtx.strokeStyle='#fff';mmCtx.lineWidth=2;mmCtx.stroke();
+  const dv=new THREE.Vector3(0,0,-1);dv.applyQuaternion(camera.quaternion);
+  mmCtx.beginPath();mmCtx.moveTo(px,pz);mmCtx.lineTo(px+dv.x*14,pz+dv.z*14);mmCtx.strokeStyle='rgba(255,255,255,.8)';mmCtx.lineWidth=2;mmCtx.stroke();
+  mmCtx.fillStyle='rgba(255,220,50,.8)';mmCtx.font='bold 8px sans-serif';mmCtx.textAlign='center';mmCtx.fillText('N',95,11);
+  const vg=mmCtx.createRadialGradient(95,95,60,95,95,95);vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.5)');mmCtx.fillStyle=vg;mmCtx.beginPath();mmCtx.arc(95,95,95,0,Math.PI*2);mmCtx.fill();
+}
+
+let prev=performance.now();
+function animate(){
+  requestAnimationFrame(animate);
+  const now=performance.now(),dt=Math.min((now-prev)/1000,.05);prev=now;
+  const t=now*.001;
+  if(controls.isLocked){
+    const sp=keys.shift?95:48;
+    vel.x-=vel.x*10*dt;vel.z-=vel.z*10*dt;
+    dir2.z=keys.w-keys.s;dir2.x=keys.d-keys.a;dir2.normalize();
+    if(keys.w||keys.s)vel.z-=dir2.z*sp*dt;
+    if(keys.a||keys.d)vel.x-=dir2.x*sp*dt;
+    controls.moveRight(-vel.x*dt);controls.moveForward(-vel.z*dt);
+    camera.position.y=1.75;
+    camera.position.x=Math.max(-130,Math.min(130,camera.position.x));
+    camera.position.z=Math.max(-130,Math.min(130,camera.position.z));
+    const kmh=Math.round(Math.sqrt(vel.x*vel.x+vel.z*vel.z)*20);
+    document.getElementById('spv').textContent=kmh;
+    document.getElementById('spm').textContent=kmh<1?'IDLE':keys.shift?'SPRINT':'WALK';
+  }
+  beacons.forEach((b,i)=>{
+    const pulse=Math.sin(t*2+i*1.3);
+    b.orb.position.y=b.baseY+Math.sin(t*1.4+i)*.4;
+    b.orb.material.opacity=.75+pulse*.12;
+    b.halo.position.y=b.orb.position.y;
+    b.halo.rotation.z=t*.5;
+    b.halo.scale.setScalar(1+Math.sin(t*2.5+i)*.1);
+    b.beam.material.opacity=.1+Math.max(0,pulse)*.06;
+    b.label.position.y=b.baseY+2.5+Math.sin(t*1.4+i)*.4;
+    b.label.rotation.y=Math.atan2(camera.position.x-b.group.position.x,camera.position.z-b.group.position.z);
+    b.pl.intensity=(CS==='dusk'?2.2:1.4)+pulse*.3;
+  });
+  clouds.forEach(c=>{c.mesh.position.x+=c.speed;if(c.mesh.position.x>220)c.mesh.position.x=-220;});
+  cars.forEach(c=>{
+    if(c.path==='h'){c.group.position.x+=c.speed;if(c.speed>0&&c.group.position.x>130)c.group.position.x=-130;if(c.speed<0&&c.group.position.x<-130)c.group.position.x=130;}
+    else{c.group.position.z+=c.speed;if(c.speed>0&&c.group.position.z>130)c.group.position.z=-130;if(c.speed<0&&c.group.position.z<-130)c.group.position.z=130;}
+  });
+  peds.forEach(p=>{
+    p.group.position.y=Math.sin(now*.006+p.wo)*.04;
+    if(p.axis==='x'){p.group.position.x+=p.speed*p.direction;p.group.rotation.y=p.direction>0?Math.PI/2:-Math.PI/2;if(Math.abs(p.group.position.x)>100)p.direction*=-1;}
+    else{p.group.position.z+=p.speed*p.direction;p.group.rotation.y=p.direction>0?0:Math.PI;if(Math.abs(p.group.position.z)>100)p.direction*=-1;}
+  });
+  if(rain){const pa=rain.geometry.attributes.position.array;for(let i=1;i<pa.length;i+=3){pa[i]-=1.6;if(pa[i]<0)pa[i]=80;}rain.geometry.attributes.position.needsUpdate=true;}
+  checkZone();updateCompass();updateCursor();drawMinimap();
+  renderer.render(scene,camera);
+}
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+animate();
+</script>
+</body>
+</html>
